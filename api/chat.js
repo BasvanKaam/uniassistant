@@ -28,6 +28,20 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    
+    // Strip markdown
+    if (data.content) {
+      data.content = data.content.map(block => {
+        if (block.type === 'text') {
+          block.text = block.text
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/#{1,6}\s/g, '')
+            .replace(/\*(.*?)\*/g, '$1');
+        }
+        return block;
+      });
+    }
+
     return res.status(response.status).json(data);
   } catch (err) {
     return res.status(500).json({ error: { message: err.message } });
